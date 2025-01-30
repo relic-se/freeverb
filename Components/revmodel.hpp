@@ -30,6 +30,8 @@ public:
 			float	getwidth();
 			void	setmode(float value);
 			float	getmode();
+			void	setstereo(bool value);
+			bool	getstereo();
 private:
 			void	update();
 private:
@@ -40,6 +42,7 @@ private:
 	float	dry;
 	float	width;
 	float	mode;
+	bool 	stereo;
 
 	// The following are all declared inline 
 	// to remove the need for dynamic allocation

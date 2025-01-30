@@ -80,31 +80,37 @@ void revmodel::processreplace(float *inputL, float *inputR, float *outputL, floa
 	while(numsamples-- > 0)
 	{
 		outL = outR = 0;
-		input = (*inputL + *inputR) * gain;
+		input = stereo ? ((*inputL + *inputR) * gain) : (*inputL * gain);
 
 		// Accumulate comb filters in parallel
 		for(i=0; i<numcombs; i++)
 		{
 			outL += combL[i].process(input);
-			outR += combR[i].process(input);
+			if (stereo) outR += combR[i].process(input);
 		}
 
 		// Feed through allpasses in series
 		for(i=0; i<numallpasses; i++)
 		{
 			outL = allpassL[i].process(outL);
-			outR = allpassR[i].process(outR);
+			if (stereo) outR = allpassR[i].process(outR);
 		}
 
 		// Calculate output REPLACING anything already there
-		*outputL = outL*wet1 + outR*wet2 + *inputL*dry;
-		*outputR = outR*wet1 + outL*wet2 + *inputR*dry;
+		if (stereo) {
+			*outputL = outL*wet1 + outR*wet2 + *inputL*dry;
+			*outputR = outR*wet1 + outL*wet2 + *inputR*dry;
+		} else {
+			*outputL = outL*wet + *inputL*dry;
+		}
 
 		// Increment sample pointers, allowing for interleave (if any)
 		inputL += skip;
-		inputR += skip;
 		outputL += skip;
-		outputR += skip;
+		if (stereo) {
+			inputR += skip;
+			outputR += skip;
+		}
 	}
 }
 
@@ -116,31 +122,37 @@ void revmodel::processmix(float *inputL, float *inputR, float *outputL, float *o
 	while(numsamples-- > 0)
 	{
 		outL = outR = 0;
-		input = (*inputL + *inputR) * gain;
+		input = stereo ? ((*inputL + *inputR) * gain) : (*inputL * gain);
 
 		// Accumulate comb filters in parallel
 		for(i=0; i<numcombs; i++)
 		{
 			outL += combL[i].process(input);
-			outR += combR[i].process(input);
+			if (stereo) outR += combR[i].process(input);
 		}
 
 		// Feed through allpasses in series
 		for(i=0; i<numallpasses; i++)
 		{
 			outL = allpassL[i].process(outL);
-			outR = allpassR[i].process(outR);
+			if (stereo) outR = allpassR[i].process(outR);
 		}
 
 		// Calculate output MIXING with anything already there
-		*outputL += outL*wet1 + outR*wet2 + *inputL*dry;
-		*outputR += outR*wet1 + outL*wet2 + *inputR*dry;
+		if (stereo) {
+			*outputL += outL*wet1 + outR*wet2 + *inputL*dry;
+			*outputR += outR*wet1 + outL*wet2 + *inputR*dry;
+		} else {
+			*outputL += outL*wet + *inputL*dry;
+		}
 
 		// Increment sample pointers, allowing for interleave (if any)
 		inputL += skip;
-		inputR += skip;
 		outputL += skip;
-		outputR += skip;
+		if (stereo) {
+			inputR += skip;
+			outputR += skip;
+		}
 	}
 }
 
@@ -250,6 +262,14 @@ float revmodel::getmode()
 		return 1;
 	else
 		return 0;
+}
+
+void revmodel::setstereo(bool value) {
+	stereo = value;
+}
+
+bool revmodel::getstereo() {
+	return stereo;
 }
 
 //ends
