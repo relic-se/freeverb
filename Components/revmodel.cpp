@@ -58,8 +58,9 @@ void revmodel::mute()
 {
 	if (getmode() >= freezemode)
 		return;
-
-	for (int i=0;i<numcombs;i++)
+	
+	int i;
+	for (i=0;i<numcombs;i++)
 	{
 		combL[i].mute();
 		combR[i].mute();
@@ -74,6 +75,7 @@ void revmodel::mute()
 void revmodel::processreplace(float *inputL, float *inputR, float *outputL, float *outputR, long numsamples, int skip)
 {
 	float outL,outR,input;
+	int i;
 
 	while(numsamples-- > 0)
 	{
@@ -81,7 +83,7 @@ void revmodel::processreplace(float *inputL, float *inputR, float *outputL, floa
 		input = (*inputL + *inputR) * gain;
 
 		// Accumulate comb filters in parallel
-		for(int i=0; i<numcombs; i++)
+		for(i=0; i<numcombs; i++)
 		{
 			outL += combL[i].process(input);
 			outR += combR[i].process(input);
@@ -109,6 +111,7 @@ void revmodel::processreplace(float *inputL, float *inputR, float *outputL, floa
 void revmodel::processmix(float *inputL, float *inputR, float *outputL, float *outputR, long numsamples, int skip)
 {
 	float outL,outR,input;
+	int i;
 
 	while(numsamples-- > 0)
 	{
@@ -116,7 +119,7 @@ void revmodel::processmix(float *inputL, float *inputR, float *outputL, float *o
 		input = (*inputL + *inputR) * gain;
 
 		// Accumulate comb filters in parallel
-		for(int i=0; i<numcombs; i++)
+		for(i=0; i<numcombs; i++)
 		{
 			outL += combL[i].process(input);
 			outR += combR[i].process(input);
